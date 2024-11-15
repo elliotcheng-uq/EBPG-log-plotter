@@ -7,7 +7,6 @@ Created on Fri Nov 15 11:03:14 2024
 
 @author: Elliot Cheng @ University of Queensland
 @Email: h.cheng6@uq.edu.au
-
 """
 
 import os
@@ -28,7 +27,7 @@ def open_file():
             content = file.read()  # Read the contents of the file
             return content, file_path
 
-#  Tkinter root window
+# Tkinter root window
 root = tk.Tk()
 root.withdraw()  
 
@@ -161,6 +160,9 @@ sorted_relative_drift_pos_data = sorted(relative_drift_pos_data, key=lambda x: (
 for _, rel_x, rel_y in sorted_relative_drift_pos_data:
     print(f"Relative X: {rel_x}, Relative Y: {rel_y}")
 
+# Extract the base name of the log file (without the path or extension)
+base_filename = os.path.splitext(os.path.basename(file_path))[0]
+
 # Create a separate plot for the wafer and drift calibration positions
 plt.figure(figsize=(8, 8))
 
@@ -182,7 +184,8 @@ plt.title('Drift Calibration Positions Relative to Wafer Center')
 plt.legend()
 plt.grid(True)
 
-# Show the plot
+# Save the first plot with the base filename and identifier
+plt.savefig(f"{base_filename}_drift_positions.png", dpi=300)
 plt.show()
 
 # Convert the timestamps to minutes since the start of the experiment
@@ -195,21 +198,22 @@ max_dx = max(dxdt_values, key=abs)
 min_dy = min(dydt_values, key=abs)
 max_dy = max(dydt_values, key=abs)
 
-# Plot the drift rates as a function of time, using the extracted date and time in the label
-plt.plot(time_values, dxdt_values, label='x drift')
-plt.plot(time_values, dydt_values, label='y drift')
+# Plot the drift rates as a function of time, with data points as dots
+plt.plot(time_values, dxdt_values, label='x drift', marker='o', linestyle='-',markersize=3)
+plt.plot(time_values, dydt_values, label='y drift', marker='o', linestyle='-',markersize=3)
 
-# Add a text box with min/max drift values at the bottom center
+# Add text with min/max drift values
 textstr = f'X Min/Max: {min_dx:.2f} / {max_dx:.2f} nm\nY Min/Max: {min_dy:.2f} / {max_dy:.2f} nm'
-print(f'For logfile name: {file_path}\n{textstr}')
-
-# Place the text box at the bottom center
 plt.gca().text(0.5, 0.05, textstr, transform=plt.gca().transAxes, fontsize=8,
                horizontalalignment='center', verticalalignment='bottom', bbox=dict(facecolor='white', alpha=0.5))
 
+# Add labels and title
 plt.xlabel('Minutes (min)')
 plt.ylabel('Beam Drift (nm/min)')
-plt.title(f'Start time {run_date},{run_start_time}')
+plt.title(f'Start time {run_date}, {run_start_time}')
 plt.legend()
 plt.grid(True)
+
+# Save the second plot with the base filename and identifier
+plt.savefig(f"{base_filename}_drift_rates.png", dpi=300)
 plt.show()
